@@ -1,0 +1,7 @@
+wvs0 <- toda a base selecionando apenas as variáveis de interesse
+wvs1 <- toda a base selecionando apenas as variáveis e waves de interesse e valores negativos agora são NAs
+wvs2 <- toda a base selecionando apenas as variáveis de interesse e mulheres
+wvs3 <- toda a base selecionando apenas as variáveis de interesse, mulheres e valores negativos agora são NAs
+wvs4 <- toda a base selecionando apenas as variáveis e waves de interesse e mulheres
+wvs5 <- toda a base selecionando apenas as variáveis e waves de interesse, mulheres e valores negativos agora são NAs (ESTAMOS UTILIZANDO ESSA)
+wvs_categorizada <- toda a base selecionando apenas as variáveis de interesse, NAs removidos, categorias colocadas como strings e dummies criadas

@@ -1,0 +1,1070 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Malu\Downloads\regressao.log
+  log type:  text
+ opened on:  11 Dec 2021, 17:22:15
+
+. 
+. * Importando o excel
+. import delimited C:\Users\Malu\Downloads\base.csv
+(31 vars, 131,416 obs)
+
+. 
+. * Transformando variáveis em numéricas e trocando "NA" por ".", também colocando X028 = 9 como missing porque não tem no dicionário
+. 
+. destring, replace ignore("NA")
+v1 already numeric; no replace
+x001 already numeric; no replace
+x002 already numeric; no replace
+x003 already numeric; no replace
+x007 already numeric; no replace
+x011 already numeric; no replace
+x025 already numeric; no replace
+x028 already numeric; no replace
+x036 already numeric; no replace
+x036e already numeric; no replace
+x040 already numeric; no replace
+x047r_wvs: characters N A removed; replaced as byte
+(535 missing values generated)
+x047_wvs already numeric; no replace
+x047cs already numeric; no replace
+x050 already numeric; no replace
+f025_01old already numeric; no replace
+f025old already numeric; no replace
+f028 already numeric; no replace
+s002vs already numeric; no replace
+x013 already numeric; no replace
+f114d already numeric; no replace
+s020 already numeric; no replace
+f199 already numeric; no replace
+s003 already numeric; no replace
+s018 already numeric; no replace
+a006 already numeric; no replace
+x025lit already numeric; no replace
+x025r already numeric; no replace
+s024 already numeric; no replace
+pais: contains characters not specified in ignore(); no replace
+religião: contains characters not specified in ignore(); no replace
+
+. replace x028 = . if x028 == 9
+(4 real changes made, 4 to missing)
+
+. replace x036e = . if x036e == 11
+(164 real changes made, 164 to missing)
+
+. * Eliminando valores negativos da base
+. ds, has(type numeric)
+v1          x003        x025        x036e       x047_wvs    f025_01old  s002vs      s020        s018        x025r
+x001        x007        x028        x040        x047cs      f025old     x013        f199        a006        s024
+x002        x011        x036        x047r_wvs   x050        f028        f114d       s003        x025lit
+
+. foreach var in `r(varlist)' {
+  2.     replace `var' = . if  `var' < 0
+  3. }
+(0 real changes made)
+(0 real changes made)
+(2,015 real changes made, 2,015 to missing)
+(375 real changes made, 375 to missing)
+(450 real changes made, 450 to missing)
+(3,688 real changes made, 3,688 to missing)
+(49,579 real changes made, 49,579 to missing)
+(2,499 real changes made, 2,499 to missing)
+(105,856 real changes made, 105,856 to missing)
+(94,711 real changes made, 94,711 to missing)
+(14,071 real changes made, 14,071 to missing)
+(6,946 real changes made, 6,946 to missing)
+(7,481 real changes made, 7,481 to missing)
+(114,315 real changes made, 114,315 to missing)
+(131,416 real changes made, 131,416 to missing)
+(131,416 real changes made, 131,416 to missing)
+(88,248 real changes made, 88,248 to missing)
+(5,168 real changes made, 5,168 to missing)
+(0 real changes made)
+(87,205 real changes made, 87,205 to missing)
+(45,499 real changes made, 45,499 to missing)
+(0 real changes made)
+(8,325 real changes made, 8,325 to missing)
+(0 real changes made)
+(0 real changes made)
+(3,417 real changes made, 3,417 to missing)
+(90,668 real changes made, 90,668 to missing)
+(1,008 real changes made, 1,008 to missing)
+(0 real changes made)
+
+. 
+. * Adicionando o peso amostral
+. svyset _n [pw=s018], strata(s024)
+
+      pweight: s018
+          VCE: linearized
+  Single unit: missing
+     Strata 1: s024
+         SU 1: <observations>
+        FPC 1: <zero>
+
+. 
+. rename x001 sexo
+
+. tab sexo, gen(dummysexo)
+
+       X001 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |    131,416      100.00      100.00
+------------+-----------------------------------
+      Total |    131,416      100.00
+
+. gen catSexo = 1 if dummysexo== 1
+
+. replace catSexo = 2 if dummysexo== 1
+(131,416 real changes made)
+
+. 
+. 
+. label define TraduzindocatSexo 1 "masculino" 2 "feminino" 
+
+. label values catSexo TraduzindocatSexo
+
+. * dummysexo1 = male
+. * dummysexo2 = female
+. rename x002 ano_nascimento
+
+. rename x003 idade
+
+. gen dummyidade1 = inrange(idade,18,30)
+
+. gen dummyidade2 = inrange(idade,31,40)
+
+. gen dummyidade3 = inrange(idade,41,50)
+
+. gen dummyidade4 = inrange(idade,51,60)
+
+. gen dummyidade5 = inrange(idade,61,70)
+
+. gen dummyidade6 = idade >= 71
+
+. 
+. gen catAge = 1 if dummyidade1 == 1
+(92,696 missing values generated)
+
+. replace catAge = 2 if dummyidade2 == 1
+(27,856 real changes made)
+
+. replace catAge = 3 if dummyidade3 == 1
+(23,839 real changes made)
+
+. replace catAge = 4 if dummyidade4 == 1
+(19,182 real changes made)
+
+. replace catAge = 5 if dummyidade5 == 1
+(12,985 real changes made)
+
+. replace catAge = 6 if dummyidade6 == 1
+(8,237 real changes made)
+
+. 
+. 
+. label define TraduzindocatAge 1 "18 à 30" 2 "31 à 40" 3 "41 à 50" 4 "51 à 60" 5 "61 à 70" 6 "+ 71"
+
+. label values catAge TraduzindocatAge
+
+. 
+. rename x007 estado_civil
+
+. gen dummyEC1 = inrange(estado_civil,1,2)
+
+. gen dummyEC2 = inrange(estado_civil,3,5)
+
+. gen dummyEC3 = estado_civil == 6
+
+. 
+. gen catEC = 1 if dummyEC1 == 1
+(49,568 missing values generated)
+
+. replace catEC = 2 if dummyEC2 == 1
+(20,933 real changes made)
+
+. replace catEC = 3 if dummyEC3 == 1
+(28,185 real changes made)
+
+. 
+. 
+. label define TraduzindocatEC 1 "married or living together as married" 2 "divorced, separated, widowed" 3 "single/never married"
+
+. label values catEC TraduzindocatEC
+
+. 
+. * dummyEC1 = married or living together as married
+. * dummyEC2 = divorced, separated, widowed
+. * dummyEC3 = single/never married
+. rename x011 n_filhos
+
+. gen dummyfilhos  = inrange(n_filhos,1,5)
+
+. 
+. gen catFilhos = 0 if dummyfilhos == 0
+(95,379 missing values generated)
+
+. replace catFilhos = 1 if dummyfilhos == 1
+(95,379 real changes made)
+
+. 
+. 
+. label define TraduzindocatFilhos 0 "sem filhos" 1 "com filhos" 
+
+. label values catFilhos TraduzindocatFilhos
+
+. 
+. * X025 - 293,613 missings
+. rename x025 nivel_educ1
+
+. gen dummyNE1_1 = inrange(nivel_educ1,1,2)
+
+. gen dummyNE1_2 = inrange(nivel_educ1,3,6)
+
+. gen dummyNE1_3 = inrange(nivel_educ1,7,8)
+
+. * dummyNE_1 = elementary education
+. * dummyNE_2 = secundary school 
+. * dummyNE_3 = university 
+. * X025R - 7,620 missings
+. rename x025r nivel_educ2
+
+. tab nivel_educ2, gen(dummyNE2_)
+
+      X025R |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |     40,091       30.74       30.74
+          2 |     58,134       44.58       75.32
+          3 |     32,183       24.68      100.00
+------------+-----------------------------------
+      Total |    130,408      100.00
+
+. 
+. gen catEduc = 1 if dummyNE2_1 == 1
+(91,325 missing values generated)
+
+. replace catEduc = 2 if dummyNE2_2 == 1
+(58,134 real changes made)
+
+. replace catEduc = 3 if dummyNE2_3 == 1
+(32,183 real changes made)
+
+. 
+. label define TraduzindocatEduc 1 "elementary educacional" 2 "secundary school" 3 "university"
+
+. label values catEduc TraduzindocatEduc
+
+. 
+. * dummyNE2_1 = lower education level
+. * dummyNE2_2 = middle education level
+. * dummyNE2_3 = upper education level 
+. rename x028 employ_status
+
+. gen dummyES1 = employ_status == 1
+
+. gen dummyES2 = employ_status == 2
+
+. gen dummyES3 = employ_status == 3
+
+. gen dummyES4 = employ_status == 4
+
+. gen dummyES5 = employ_status == 5
+
+. gen dummyES6 = inrange(employ_status,6,7)
+
+. gen dummyES7 = employ_status == 8
+
+. 
+. gen catES = 1 if dummyES1 == 1
+(97,369 missing values generated)
+
+. replace catES = 2 if dummyES2 == 1
+(11,382 real changes made)
+
+. replace catES = 3 if dummyES3 == 1
+(11,974 real changes made)
+
+. replace catES = 4 if dummyES4 == 1
+(14,907 real changes made)
+
+. replace catES = 5 if dummyES5 == 1
+(35,792 real changes made)
+
+. replace catES = 6 if dummyES6 == 1
+(18,786 real changes made)
+
+. replace catES = 7 if dummyES7 == 1
+(2,025 real changes made)
+
+. 
+. label define TraduzindocatES 1 "full time" 2 "part time" 3 "self employed" 4 "retired" 5 "housewife" 6 "unemployed" 7 "other"
+
+. label values catES TraduzindocatES
+
+. 
+. * dummyES1 = full time
+. * dummyES2 = part time
+. * dummyES3 = self employed
+. * dummyES4 = retired
+. * dummyES5 = housewife
+. * dummyES6 = students
+. * dummyES7 = unemployed
+. * dummyES8 = other
+. rename x036 ocupacao1
+
+. replace ocupacao1 = 1 if ocupacao1 <= 16
+(1,586 real changes made)
+
+. gen dummyOC1_1 = ocupacao1 == 1
+
+. gen dummyOC1_2 = ocupacao1 == 21
+
+. gen dummyOC1_3 = inrange(ocupacao1,22,25)
+
+. gen dummyOC1_4 = ocupacao1 == 31
+
+. gen dummyOC1_5 = inrange(ocupacao1,32,34)
+
+. gen dummyOC1_6 = ocupacao1 == 41
+
+. gen dummyOC1_7 = ocupacao1 == 42
+
+. gen dummyOC1_8 = ocupacao1 == 51
+
+. gen dummyOC1_9 = ocupacao1 == 61
+
+. gen catOC1 = 1 if dummyOC1_1 == 1
+(129,830 missing values generated)
+
+. replace catOC1 = 2 if dummyOC1_2 == 1
+(3,566 real changes made)
+
+. replace catOC1 = 3 if dummyOC1_3 == 1
+(6,174 real changes made)
+
+. replace catOC1 = 4 if dummyOC1_4 == 1
+(207 real changes made)
+
+. replace catOC1 = 5 if dummyOC1_5 == 1
+(7,866 real changes made)
+
+. replace catOC1 = 6 if dummyOC1_6 == 1
+(881 real changes made)
+
+. replace catOC1 = 7 if dummyOC1_7 == 1
+(2,032 real changes made)
+
+. replace catOC1 = 8 if dummyOC1_8 == 1
+(87 real changes made)
+
+. replace catOC1 = 9 if dummyOC1_9 == 1
+(2,965 real changes made)
+
+. label define TraduzindocatOC1 1 "employer/manager of establishment" 2 "professional worker" 3 "non-manual office worker" 4 "foreman and supervisor" 5 "manual 
+> worker" 6 "farmer: has own farm" 7 "agricultural worker" 8 "member armed forces" 9 "never had job"
+
+. label values catOC1 TraduzindocatOC1
+
+. 
+. * dummy_groupOC1_1 = employer/manager of establishment
+. * dummy_groupOC1_2 = professional worker
+. * dummy_groupOC1_3 = non-manual office worker
+. * dummy_groupOC1_4 = foreman and supervisor
+. * dummy_groupOC1_5 = manual worker
+. * dummy_groupOC1_6 = farmer: has own farm
+. * dummy_groupOC1_7 = agricultural worker
+. * dummy_groupOC1_8 = member armed forces
+. * dummy_groupOC1_9 = never had job
+. * ocupacao1 - employers = 1
+. 
+. rename x036e ocupacao2
+
+. tab ocupacao2, gen(dummyOC2_)
+
+      X036E |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      8,933       24.45       24.45
+          1 |      5,488       15.02       39.47
+          2 |      1,075        2.94       42.41
+          3 |      4,634       12.68       55.09
+          4 |      4,900       13.41       68.50
+          5 |      3,477        9.52       78.01
+          6 |      1,964        5.37       83.39
+          7 |      1,345        3.68       87.07
+          8 |      2,602        7.12       94.19
+          9 |      1,335        3.65       97.84
+         10 |        788        2.16      100.00
+------------+-----------------------------------
+      Total |     36,541      100.00
+
+. 
+. gen catOC2 = 1 if dummyOC2_1 == 1
+(122,483 missing values generated)
+
+. replace catOC2 = 2 if dummyOC2_2 == 1
+(5,488 real changes made)
+
+. replace catOC2 = 3 if dummyOC2_3 == 1
+(1,075 real changes made)
+
+. replace catOC2 = 4 if dummyOC2_4 == 1
+(4,634 real changes made)
+
+. replace catOC2 = 5 if dummyOC2_5 == 1
+(4,900 real changes made)
+
+. replace catOC2 = 6 if dummyOC2_6 == 1
+(3,477 real changes made)
+
+. replace catOC2 = 7 if dummyOC2_7 == 1
+(1,964 real changes made)
+
+. replace catOC2 = 8 if dummyOC2_8 == 1
+(1,345 real changes made)
+
+. replace catOC2 = 9 if dummyOC2_9 == 1
+(2,602 real changes made)
+
+. replace catOC2 = 10 if dummyOC2_10 == 1
+(1,335 real changes made)
+
+. replace catOC2 = 11 if dummyOC2_11 == 1
+(788 real changes made)
+
+. 
+. label define TraduzindocatOC2 1 "never had a job" 2 "professional and technical" 3 "higher administrative" 4 "clerical" 5 "sales" 6 "service" 7 "skilled worke
+> r" 8 "semi-skilled worked" 9 "unskilled worker" 10 "farm worker" 11 "farm proprietor"
+
+. label values catOC2 TraduzindocatOC2
+
+. * dummyOC2_1 = never had a job
+. * dummyOC2_2 = professional and technical
+. * dummyOC2_3 = higher administrative
+. * dummyOC2_4 = clerical
+. * dummyOC2_5 = sales
+. * dummyOC2_6 = service
+. * dummyOC2_7 = skilled worker
+. * dummyOC2_8 = semi-skilled worked
+. * dummyOC2_9 = unskilled worker
+. * dummyOC2_10 = farm worker
+. * dummyOC2_11 = farm proprietor
+. rename x040 chefe_casa
+
+. tab chefe_casa, gen(dummychefe)
+
+       X040 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     85,725       73.05       73.05
+          1 |     31,620       26.95      100.00
+------------+-----------------------------------
+      Total |    117,345      100.00
+
+. 
+. gen catChefe = 1 if dummychefe1 == 1
+(45,691 missing values generated)
+
+. replace catChefe = 2 if dummychefe2 == 1
+(31,620 real changes made)
+
+. 
+. label define TraduzindocatChefe 1 "No" 2 "Yes" 
+
+. label values catChefe TraduzindocatChefe
+
+. * dummychefe1 = No
+. * dummychefe2 = Yes
+. rename x047_wvs scale_income
+
+. tab scale_income, gen(dummyIS)
+
+   X047_WVS |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |     11,921        9.62        9.62
+          2 |     10,635        8.58       18.20
+          3 |     15,386       12.41       30.61
+          4 |     16,971       13.69       44.31
+          5 |     26,453       21.34       65.65
+          6 |     17,480       14.10       79.76
+          7 |     13,265       10.70       90.46
+          8 |      7,225        5.83       96.29
+          9 |      2,380        1.92       98.21
+         10 |      2,219        1.79      100.00
+------------+-----------------------------------
+      Total |    123,935      100.00
+
+. 
+. gen catIS = 1 if dummyIS1 == 1
+(119,495 missing values generated)
+
+. replace catIS = 2 if dummyIS2 == 1
+(10,635 real changes made)
+
+. replace catIS = 3 if dummyIS3 == 1
+(15,386 real changes made)
+
+. replace catIS = 4 if dummyIS4 == 1
+(16,971 real changes made)
+
+. replace catIS = 5 if dummyIS5 == 1
+(26,453 real changes made)
+
+. replace catIS = 6 if dummyIS6 == 1
+(17,480 real changes made)
+
+. replace catIS = 7 if dummyIS7 == 1
+(13,265 real changes made)
+
+. replace catIS = 8 if dummyIS8 == 1
+(7,225 real changes made)
+
+. replace catIS = 9 if dummyIS9 == 1
+(2,380 real changes made)
+
+. replace catIS = 10 if dummyIS10 == 1
+(2,219 real changes made)
+
+. 
+. label define TraduzindocatIS 1 "lower step" 2 "second step" 3 "third step" 4 "fourth step" 5 "fifth step" 6 "sixth step" 7 "seventh step" 8 "eighth step" 9 "n
+> ineth step" 10 "higher step"
+
+. label values catIS TraduzindocatIS
+
+. 
+. * dummyIL1 = low income level
+. * dummyIL2 = medium income level
+. * dummyIL3 = high income level
+. rename f025old religiao
+
+. rename f028 attend_religious 
+
+. rename s002vs wave
+
+. rename f114d violencia_outros
+
+. gen nao_voutros = 1 if violencia_outros == 1
+(70,486 missing values generated)
+
+. replace nao_voutros = 0 if violencia_outros != 1 
+(70,486 real changes made)
+
+. replace nao_voutros = . if violencia_outros == .
+(45,499 real changes made, 45,499 to missing)
+
+. 
+. label define Traduzindonvoutros 1 "não aceitável" 0 "aceitável"
+
+. label values nao_voutros Traduzindonvoutros
+
+. * não_voutros = 1 violência contra os outros não aceitável
+. 
+. rename s020 ano_survey
+
+. rename f199 violencia_domest
+
+. gen nao_vdomest = 1 if violencia_domest == 1
+(37,613 missing values generated)
+
+. replace nao_vdomest = 0 if violencia_domest != 1 
+(37,613 real changes made)
+
+. replace nao_vdomest = . if violencia_domest == .
+(8,325 real changes made, 8,325 to missing)
+
+. 
+. label define Traduzindonvdomest 1 "não aceitável" 0 "aceitável"
+
+. label values nao_vdomest Traduzindonvdomest
+
+. 
+. rename s003 country_code
+
+. rename a006 religion_importance
+
+. tab religion_importance, gen(dummyregimp)
+
+       A006 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |     65,060       50.83       50.83
+          2 |     28,985       22.64       73.47
+          3 |     21,019       16.42       89.89
+          4 |     12,935       10.11      100.00
+------------+-----------------------------------
+      Total |    127,999      100.00
+
+. 
+. gen catRelIm = 1 if dummyregimp1 == 1
+(66,356 missing values generated)
+
+. replace catRelIm = 2 if dummyregimp2 == 1
+(28,985 real changes made)
+
+. replace catRelIm = 3 if dummyregimp3 == 1
+(21,019 real changes made)
+
+. replace catRelIm = 4 if dummyregimp4 == 1
+(12,935 real changes made)
+
+. 
+. label define TraduzindocatRelIm 1 "very important" 2 "rather important" 3 "not very important" 4 "not at all important"
+
+. label values catRelIm TraduzindocatRelIm
+
+. 
+. * dummyregimp1 = very important
+. * dummyregimp2 = rather important
+. * dummyregimp3 = not very important
+. * dummyregimp4 = not at all important
+. 
+. * Fazendo a regressão
+. * var y: nao_vdomest
+. 
+. * Transformando em numérica "Pais" para usar de efeito fixo
+. encode pais, generate(pais_reg)
+
+. replace religião = "" if religião == "NA"
+(88,248 real changes made)
+
+. encode religião, generate(rel_reg)
+
+. 
+. 
+. * para os efeitos fixos
+. replace religiao = 91 if religiao == .
+(88,248 real changes made)
+
+. replace ocupacao1 = 82 if ocupacao1 == .
+(105,856 real changes made)
+
+. replace ocupacao2 = 12 if ocupacao2 == .
+(94,875 real changes made)
+
+. 
+. * Efeito fixo de país e wave
+. * Tiramos violência contra os outros, visto que não está em nossa hipótese econômica
+. * Podemos usar violência contra os outros só com as duas últimas waves
+. svy: logit nao_vdomest ib6.catAge ib4.catRelIm ib3.catEC ib1.catFilhos ib1.catEduc ib7.catES ib1.catChefe ib1.catIS i.pais_reg i.wave
+(running logit on estimation sample)
+
+Survey: Logistic regression
+
+Number of strata   =       153                  Number of obs     =    100,636
+Number of PSUs     =   100,636                  Population size   = 68,243.774
+                                                Design df         =    100,483
+                                                F( 115, 100369)   =     101.84
+                                                Prob > F          =     0.0000
+
+--------------------------------------------------------------------------------------------------------
+                                       |             Linearized
+                           nao_vdomest |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------------------------------+----------------------------------------------------------------
+                                catAge |
+                              18 à 30  |   -.111654   .0507941    -2.20   0.028    -.2112098   -.0120982
+                              31 à 40  |  -.0230323   .0499765    -0.46   0.645    -.1209855    .0749209
+                              41 à 50  |  -.0050829   .0496533    -0.10   0.918    -.1024028    .0922369
+                              51 à 60  |   .0165623   .0482187     0.34   0.731    -.0779457    .1110703
+                              61 à 70  |   .0305638   .0480006     0.64   0.524    -.0635167    .1246444
+                                       |
+                              catRelIm |
+                       very important  |    .192317   .0378108     5.09   0.000     .1182084    .2664256
+                     rather important  |  -.1151608    .036592    -3.15   0.002    -.1868807   -.0434409
+                   not very important  |  -.0628675    .036796    -1.71   0.088    -.1349872    .0092522
+                                       |
+                                 catEC |
+married or living together as married  |   .0817123   .0310988     2.63   0.009      .020759    .1426657
+         divorced, separated, widowed  |   .1124961   .0380094     2.96   0.003     .0379982     .186994
+                                       |
+                             catFilhos |
+                           sem filhos  |   .0373339   .0281852     1.32   0.185    -.0179087    .0925764
+                                       |
+                               catEduc |
+                     secundary school  |   .2211452   .0223275     9.90   0.000     .1773837    .2649068
+                           university  |   .3230299   .0277937    11.62   0.000     .2685545    .3775053
+                                       |
+                                 catES |
+                            full time  |  -.3151109   .0799722    -3.94   0.000    -.4718554   -.1583663
+                            part time  |  -.4378989     .08283    -5.29   0.000    -.6002446   -.2755532
+                        self employed  |  -.3700865   .0813911    -4.55   0.000    -.5296119    -.210561
+                              retired  |  -.3224094    .086121    -3.74   0.000    -.4912055   -.1536133
+                            housewife  |  -.3694722   .0799389    -4.62   0.000    -.5261515   -.2127929
+                           unemployed  |  -.3629014    .082009    -4.43   0.000     -.523638   -.2021648
+                                       |
+                              catChefe |
+                                  Yes  |  -.0829419   .0219979    -3.77   0.000    -.1260575   -.0398264
+                                       |
+                                 catIS |
+                          second step  |   -.389034   .0440401    -8.83   0.000     -.475352    -.302716
+                           third step  |  -.4341416   .0399006   -10.88   0.000    -.5123462    -.355937
+                          fourth step  |  -.5320411   .0389558   -13.66   0.000    -.6083939   -.4556883
+                           fifth step  |  -.4262231   .0370091   -11.52   0.000    -.4987605   -.3536858
+                           sixth step  |  -.6250309   .0390707   -16.00   0.000     -.701609   -.5484529
+                         seventh step  |  -.5489896    .041301   -13.29   0.000     -.629939   -.4680402
+                          eighth step  |  -.4940224   .0470469   -10.50   0.000    -.5862339    -.401811
+                          nineth step  |   -.548643   .0709389    -7.73   0.000    -.6876824   -.4096036
+                          higher step  |  -.1228285   .0823482    -1.49   0.136      -.28423     .038573
+                                       |
+                              pais_reg |
+                              Andorra  |   3.379591   .2105275    16.05   0.000      2.96696    3.792223
+                            Argentina  |   2.088576   .1733366    12.05   0.000     1.748839    2.428314
+                              Armenia  |   1.895476   .1455282    13.02   0.000     1.610243     2.18071
+                            Australia  |   2.963271   .1418879    20.88   0.000     2.685173     3.24137
+                           Azerbaijan  |   1.271459   .1405063     9.05   0.000     .9960688     1.54685
+                           Bangladesh  |   .3465859   .1234918     2.81   0.005     .1045435    .5886283
+                              Belarus  |   1.311986   .1243487    10.55   0.000     1.068264    1.555708
+                              Bolivia  |   1.229183   .1214835    10.12   0.000     .9910766    1.467289
+                               Brazil  |   2.135422   .1147832    18.60   0.000     1.910448    2.360396
+                             Bulgaria  |    1.37747   .2075944     6.64   0.000     .9705875    1.784352
+                         Burkina Faso  |   .2670309   .1292691     2.07   0.039      .013665    .5203967
+                               Canada  |   2.371806   .1163236    20.39   0.000     2.143814    2.599799
+                                Chile  |   1.812665   .1213064    14.94   0.000     1.574906    2.050424
+                                China  |   1.199851   .1032341    11.62   0.000     .9975137    1.402189
+                             Colombia  |   1.897419     .12015    15.79   0.000     1.661926    2.132911
+                               Cyprus  |   1.987822   .1274501    15.60   0.000     1.738022    2.237623
+                              Ecuador  |   1.244976   .1231554    10.11   0.000     1.003593    1.486359
+                                Egypt  |  -.1827443   .1014727    -1.80   0.072    -.3816296    .0161409
+                              Estonia  |   1.601539   .1312716    12.20   0.000     1.344248    1.858829
+                             Ethiopia  |   1.408868   .1170405    12.04   0.000      1.17947    1.638266
+                              Finland  |   2.312377   .2537969     9.11   0.000     1.814939    2.809816
+                              Georgia  |   2.175846   .1362412    15.97   0.000     1.908815    2.442877
+                              Germany  |   1.854084   .1064706    17.41   0.000     1.645403    2.062765
+                                Ghana  |    .684477   .1062474     6.44   0.000     .4762334    .8927205
+                               Greece  |   3.150257   .2408538    13.08   0.000     2.678187    3.622328
+                            Guatemala  |   1.202625   .1406713     8.55   0.000     .9269114    1.478339
+                                Haiti  |  -.4155382   .1167752    -3.56   0.000    -.6444162   -.1866601
+                        Hong Kong SAR  |   .8780952   .1085314     8.09   0.000      .665375    1.090815
+                              Hungary  |   2.271259   .1825578    12.44   0.000     1.913448     2.62907
+                                India  |   .9242971   .1019389     9.07   0.000     .7244982    1.124096
+                            Indonesia  |   1.323394   .1070719    12.36   0.000     1.113534    1.533253
+                                 Iran  |   1.536484   .1320734    11.63   0.000     1.277622    1.795346
+                                 Iraq  |   -.181696   .1071809    -1.70   0.090    -.3917692    .0283772
+                                Italy  |   3.189072   .3986431     8.00   0.000     2.407736    3.970407
+                                Japan  |   1.745027   .1208139    14.44   0.000     1.508234    1.981821
+                               Jordan  |   1.376686   .1174574    11.72   0.000     1.146471    1.606901
+                           Kazakhstan  |    .529186    .105878     5.00   0.000     .3216665    .7367055
+                               Kuwait  |   .3989367   .1419789     2.81   0.005     .1206599    .6772135
+                           Kyrgyzstan  |    .870255   .1077068     8.08   0.000     .6591511    1.081359
+                              Lebanon  |   .2199745   .1067455     2.06   0.039     .0107546    .4291944
+                                Libya  |   1.124051   .1176596     9.55   0.000     .8934399    1.354663
+                            Macau SAR  |   .3814075   .1303335     2.93   0.003     .1259554    .6368596
+                             Malaysia  |   -.039418   .1024369    -0.38   0.700     -.240193     .161357
+                                 Mali  |  -.3883843   .1394615    -2.78   0.005    -.6617271   -.1150416
+                               Mexico  |   1.104741   .1047503    10.55   0.000     .8994318    1.310051
+                              Moldova  |   1.297986   .1514958     8.57   0.000     1.001056    1.594916
+                              Morocco  |   1.075565   .1163353     9.25   0.000     .8475489     1.30358
+                              Myanmar  |   1.551441   .1452551    10.68   0.000     1.266743    1.836139
+                          Netherlands  |   2.756427   .1745347    15.79   0.000     2.414341    3.098512
+                          New Zealand  |   2.703367   .1824702    14.82   0.000     2.345728    3.061007
+                            Nicaragua  |   1.911929   .1623156    11.78   0.000     1.593792    2.230065
+                              Nigeria  |   .2111622   .1035076     2.04   0.041     .0082885    .4140359
+                               Norway  |    2.12759   .1897417    11.21   0.000     1.755699    2.499482
+                             Pakistan  |   .7356415   .1069579     6.88   0.000     .5260052    .9452777
+                            Palestine  |   .3411271   .1275336     2.67   0.007     .0911629    .5910914
+                                 Peru  |   1.127271   .1158593     9.73   0.000     .9001884    1.354354
+                          Philippines  |  -.2706682    .106461    -2.54   0.011    -.4793305   -.0620059
+                               Poland  |   2.356524   .1511815    15.59   0.000      2.06021    2.652837
+                          Puerto Rico  |   2.843493   .2169578    13.11   0.000     2.418258    3.268728
+                                Qatar  |   1.319669   .1388815     9.50   0.000     1.047463    1.591875
+                              Romania  |   2.010193   .1134029    17.73   0.000     1.787925    2.232462
+                               Russia  |   .9384528   .1045704     8.97   0.000     .7334961    1.143409
+                               Rwanda  |  -1.189444   .1063019   -11.19   0.000    -1.397795   -.9810938
+                               Serbia  |   .5556084   .1216169     4.57   0.000     .3172407     .793976
+                            Singapore  |   1.010901   .1017205     9.94   0.000     .8115299    1.210272
+                             Slovenia  |   1.739151   .1261383    13.79   0.000     1.491921     1.98638
+                         South Africa  |  -.0068022   .0967009    -0.07   0.944    -.1963347    .1827303
+                          South Korea  |   .9525843   .1044755     9.12   0.000     .7478137    1.157355
+                               Sweden  |   2.574022   .1563665    16.46   0.000     2.267546    2.880499
+                          Switzerland  |   1.846918   .1562287    11.82   0.000     1.540711    2.153124
+                           Taiwan ROC  |   1.379905   .1114424    12.38   0.000      1.16148    1.598331
+                           Tajikistan  |  -1.669586   .1386074   -12.05   0.000    -1.941255   -1.397917
+                             Thailand  |   .4222025   .1011287     4.17   0.000     .2239915    .6204136
+                  Trinidad and Tobago  |   1.980523   .1444562    13.71   0.000     1.697391    2.263656
+                              Tunisia  |   1.020593   .1117828     9.13   0.000     .8015002    1.239686
+                               Turkey  |   1.353249   .1068955    12.66   0.000     1.143736    1.562763
+                              Ukraine  |   .8819575    .105796     8.34   0.000     .6745986    1.089316
+                        United States  |   2.113732    .112667    18.76   0.000     1.892906    2.334558
+                              Uruguay  |   1.829276   .1264239    14.47   0.000     1.581487    2.077065
+                           Uzbekistan  |   .4124946   .1133011     3.64   0.000     .1904259    .6345633
+                              Vietnam  |   .3903223   .1081079     3.61   0.000     .1784322    .6022125
+                                Yemen  |   .5403423   .1288164     4.19   0.000     .2878636    .7928209
+                               Zambia  |  -.7445854   .1304796    -5.71   0.000    -1.000324   -.4888469
+                             Zimbabwe  |   .5432105   .1043652     5.20   0.000      .338656    .7477651
+                                       |
+                                  wave |
+                                    6  |  -.1432239   .0273312    -5.24   0.000    -.1967927    -.089655
+                                    7  |   .0387963   .0287428     1.35   0.177    -.0175392    .0951317
+                                       |
+                                 _cons |   .6604867   .1406586     4.70   0.000     .3847976    .9361758
+--------------------------------------------------------------------------------------------------------
+
+. margins, dydx(catRelIm)
+
+Average marginal effects                        Number of obs     =    100,636
+Model VCE    : Linearized
+
+Expression   : Pr(nao_vdomest), predict()
+dy/dx w.r.t. : 1.catRelIm 2.catRelIm 3.catRelIm
+
+-------------------------------------------------------------------------------------
+                    |            Delta-method
+                    |      dy/dx   Std. Err.      t    P>|t|     [95% Conf. Interval]
+--------------------+----------------------------------------------------------------
+           catRelIm |
+    very important  |   .0299851   .0060169     4.98   0.000     .0181921    .0417781
+  rather important  |  -.0190247    .005982    -3.18   0.001    -.0307494      -.0073
+not very important  |  -.0102894   .0059976    -1.72   0.086    -.0220446    .0014658
+-------------------------------------------------------------------------------------
+Note: dy/dx for factor levels is the discrete change from the base level.
+
+. marginsplot
+
+  Variables that uniquely identify margins: _deriv
+
+. margins, dydx(catEC)
+
+Average marginal effects                        Number of obs     =    100,636
+Model VCE    : Linearized
+
+Expression   : Pr(nao_vdomest), predict()
+dy/dx w.r.t. : 1.catEC 2.catEC
+
+--------------------------------------------------------------------------------------------------------
+                                       |            Delta-method
+                                       |      dy/dx   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------------------------------+----------------------------------------------------------------
+                                 catEC |
+married or living together as married  |   .0131064   .0050299     2.61   0.009     .0032479     .022965
+         divorced, separated, widowed  |    .017936   .0060658     2.96   0.003     .0060471    .0298248
+--------------------------------------------------------------------------------------------------------
+Note: dy/dx for factor levels is the discrete change from the base level.
+
+. marginsplot
+
+  Variables that uniquely identify margins: _deriv
+
+. margins, dydx(catES)
+
+Average marginal effects                        Number of obs     =    100,636
+Model VCE    : Linearized
+
+Expression   : Pr(nao_vdomest), predict()
+dy/dx w.r.t. : 1.catES 2.catES 3.catES 4.catES 5.catES 6.catES
+
+--------------------------------------------------------------------------------
+               |            Delta-method
+               |      dy/dx   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         catES |
+    full time  |  -.0461308   .0109624    -4.21   0.000     -.067617   -.0246446
+    part time  |  -.0658278   .0115568    -5.70   0.000    -.0884789   -.0431767
+self employed  |  -.0548338   .0112761    -4.86   0.000    -.0769349   -.0327327
+      retired  |  -.0472753   .0120407    -3.93   0.000    -.0708748   -.0236757
+    housewife  |  -.0547355    .010983    -4.98   0.000    -.0762621   -.0332089
+   unemployed  |  -.0536856   .0113558    -4.73   0.000    -.0759429   -.0314283
+--------------------------------------------------------------------------------
+Note: dy/dx for factor levels is the discrete change from the base level.
+
+. marginsplot
+
+  Variables that uniquely identify margins: _deriv
+
+. margins, dydx(catChefe)
+
+Average marginal effects                        Number of obs     =    100,636
+Model VCE    : Linearized
+
+Expression   : Pr(nao_vdomest), predict()
+dy/dx w.r.t. : 2.catChefe
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    catChefe |
+        Yes  |  -.0132445   .0035358    -3.75   0.000    -.0201746   -.0063143
+------------------------------------------------------------------------------
+Note: dy/dx for factor levels is the discrete change from the base level.
+
+. marginsplot
+
+  Variables that uniquely identify margins:
+
+. margins, dydx(catIS)
+
+Average marginal effects                        Number of obs     =    100,636
+Model VCE    : Linearized
+
+Expression   : Pr(nao_vdomest), predict()
+dy/dx w.r.t. : 2.catIS 3.catIS 4.catIS 5.catIS 6.catIS 7.catIS 8.catIS 9.catIS 10.catIS
+
+-------------------------------------------------------------------------------
+              |            Delta-method
+              |      dy/dx   Std. Err.      t    P>|t|     [95% Conf. Interval]
+--------------+----------------------------------------------------------------
+        catIS |
+ second step  |  -.0553591    .006264    -8.84   0.000    -.0676366   -.0430817
+  third step  |  -.0624172    .005585   -11.18   0.000    -.0733637   -.0514708
+ fourth step  |  -.0781772   .0054836   -14.26   0.000     -.088925   -.0674295
+  fifth step  |  -.0611688   .0050368   -12.14   0.000     -.071041   -.0512967
+  sixth step  |  -.0936923   .0055597   -16.85   0.000    -.1045891   -.0827954
+seventh step  |   -.080966   .0059195   -13.68   0.000    -.0925681   -.0693638
+ eighth step  |  -.0719859   .0069044   -10.43   0.000    -.0855184   -.0584534
+ nineth step  |  -.0809088   .0112065    -7.22   0.000    -.1028734   -.0589441
+ higher step  |  -.0163978   .0112259    -1.46   0.144    -.0384005    .0056048
+-------------------------------------------------------------------------------
+Note: dy/dx for factor levels is the discrete change from the base level.
+
+. marginsplot
+
+  Variables that uniquely identify margins: _deriv
+
+. 
+.  
+. svy: logit nao_vdomest ib6.catAge ib4.catRelIm ib3.catEC ib1.catFilhos ib1.catEduc ib7.catES ib1.catChefe ib1.catIS i.wave if pais == "Brazil"
+(running logit on estimation sample)
+
+note: 7b.catES != 0 predicts success perfectly
+      7b.catES dropped and 12 obs not used
+note: 10.catIS != 0 predicts success perfectly
+      10.catIS dropped and 18 obs not used
+note: 6.catES omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =         3                  Number of obs     =      2,078
+Number of PSUs     =     2,078                  Population size   = 1,312.0859
+                                                Design df         =      2,075
+                                                F(  29,   2047)   =       2.96
+                                                Prob > F          =     0.0000
+
+--------------------------------------------------------------------------------------------------------
+                                       |             Linearized
+                           nao_vdomest |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------------------------------+----------------------------------------------------------------
+                                catAge |
+                              18 à 30  |  -1.443481   .5656056    -2.55   0.011    -2.552695   -.3342677
+                              31 à 40  |  -.8500721   .5666424    -1.50   0.134    -1.961319    .2611748
+                              41 à 50  |  -.8719561   .5679495    -1.54   0.125    -1.985766    .2418543
+                              51 à 60  |   -1.01443   .5348875    -1.90   0.058    -2.063402    .0345423
+                              61 à 70  |  -.6548709   .5476673    -1.20   0.232    -1.728906    .4191637
+                                       |
+                              catRelIm |
+                       very important  |   .7087837   .4608181     1.54   0.124    -.1949303    1.612498
+                     rather important  |   .1431027   .4587902     0.31   0.755    -.7566344     1.04284
+                   not very important  |   .1078342   .5116167     0.21   0.833    -.8955012     1.11117
+                                       |
+                                 catEC |
+married or living together as married  |   .3000334   .2217115     1.35   0.176    -.1347669    .7348336
+         divorced, separated, widowed  |   .2144436   .2753831     0.78   0.436    -.3256123    .7544995
+                                       |
+                             catFilhos |
+                           sem filhos  |  -.0567146   .2406278    -0.24   0.814    -.5286116    .4151825
+                                       |
+                               catEduc |
+                     secundary school  |   .2144988   .1682612     1.27   0.203    -.1154796    .5444772
+                           university  |   1.205281   .2816401     4.28   0.000     .6529543    1.757607
+                                       |
+                                 catES |
+                            full time  |  -.3477953   .2731785    -1.27   0.203    -.8835278    .1879371
+                            part time  |  -.5616002   .3246034    -1.73   0.084    -1.198183    .0749822
+                        self employed  |  -.4575503   .2935298    -1.56   0.119    -1.033194    .1180934
+                              retired  |  -.2780095   .3624094    -0.77   0.443    -.9887335    .4327144
+                            housewife  |    .003736   .3150677     0.01   0.991    -.6141457    .6216177
+                           unemployed  |          0  (omitted)
+                                other  |          0  (empty)
+                                       |
+                              catChefe |
+                                  Yes  |  -.0597132   .1769469    -0.34   0.736    -.4067252    .2872987
+                                       |
+                                 catIS |
+                          second step  |  -.3407907    .357757    -0.95   0.341    -1.042391    .3608095
+                           third step  |  -.6439128   .3386666    -1.90   0.057    -1.308074    .0202489
+                          fourth step  |  -.8037354   .3192437    -2.52   0.012    -1.429807    -.177664
+                           fifth step  |  -.6937056   .2948676    -2.35   0.019    -1.271973   -.1154385
+                           sixth step  |   -1.21323   .3157243    -3.84   0.000      -1.8324    -.594061
+                         seventh step  |  -1.198516   .3637487    -3.29   0.001    -1.911867   -.4851658
+                          eighth step  |  -1.158243   .3966089    -2.92   0.004    -1.936036   -.3804503
+                          nineth step  |  -1.286214   .6065381    -2.12   0.034    -2.475701   -.0967271
+                          higher step  |          0  (empty)
+                                       |
+                                  wave |
+                                    6  |   .5455039   .2019976     2.70   0.007     .1493647     .941643
+                                    7  |   .2977621    .201553     1.48   0.140    -.0975052    .6930294
+                                       |
+                                 _cons |   3.024034   .8248172     3.67   0.000     1.406478    4.641589
+--------------------------------------------------------------------------------------------------------
+
+. margins, dydx(catIS)
+
+Average marginal effects                        Number of obs     =      2,078
+Model VCE    : Linearized
+
+Expression   : Pr(nao_vdomest), predict()
+dy/dx w.r.t. : 2.catIS 3.catIS 4.catIS 5.catIS 6.catIS 7.catIS 8.catIS 9.catIS 10.catIS
+
+-------------------------------------------------------------------------------
+              |            Delta-method
+              |      dy/dx   Std. Err.      t    P>|t|     [95% Conf. Interval]
+--------------+----------------------------------------------------------------
+        catIS |
+ second step  |   -.019433   .0208801    -0.93   0.352    -.0603812    .0215151
+  third step  |  -.0418294   .0225889    -1.85   0.064    -.0861287    .0024699
+ fourth step  |  -.0558921   .0221406    -2.52   0.012    -.0993121    -.012472
+  fifth step  |  -.0460336   .0182105    -2.53   0.012    -.0817464   -.0103208
+  sixth step  |  -.1000215    .026339    -3.80   0.000    -.1516752   -.0483678
+seventh step  |  -.0982207   .0341556    -2.88   0.004    -.1652035   -.0312379
+ eighth step  |  -.0933764   .0380553    -2.45   0.014    -.1680069   -.0187459
+ nineth step  |  -.1092013   .0725353    -1.51   0.132    -.2514508    .0330481
+ higher step  |          .  (not estimable)
+-------------------------------------------------------------------------------
+Note: dy/dx for factor levels is the discrete change from the base level.
+
+. marginsplot 
+
+  Variables that uniquely identify margins: _deriv
+
+. * Rodamos com religião, porém percebemos que não trouxe resultados significantes. Desse modo, achamos que por motivos teóricos e empíricos era melhor tirar o 
+> efeito fixo de religião
+. 
+. * Tabela do mundo
+. summ nao_vdomest catAge catRelIm catEC catFilhos catEduc catES catChefe catIS 
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+ nao_vdomest |    123,091    .7620622    .4258226          0          1
+      catAge |    130,819    2.729145    1.560086          1          6
+    catRelIm |    127,999    1.858038    1.027898          1          4
+       catEC |    130,966    1.590252    .8199248          1          3
+   catFilhos |    131,416    .7257792    .4461225          0          1
+-------------+---------------------------------------------------------
+     catEduc |    130,408     1.93936    .7419848          1          3
+       catES |    128,913    3.554428    1.904323          1          7
+    catChefe |    117,345    1.269462    .4436821          1          2
+       catIS |    123,935    4.668923    2.164245          1         10
+
+. * Tabela do Brasil
+. summ nao_vdomest catAge catRelIm catEC catFilhos catEduc catES catChefe catIS if pais == "Brazil"
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+ nao_vdomest |      2,745    .8928962    .3093015          0          1
+      catAge |      2,728    2.710044    1.526882          1          6
+    catRelIm |      2,759    1.548025    .7112957          1          4
+       catEC |      2,759    1.701704    .8398828          1          3
+   catFilhos |      2,765    .7728752    .4190497          0          1
+-------------+---------------------------------------------------------
+     catEduc |      2,739    1.713399    .7196547          1          3
+       catES |      2,747    3.737532    1.835929          1          7
+    catChefe |      2,253    1.338216    .4732074          1          2
+       catIS |      2,668    4.113568    2.138843          1         10
+
+. 
+. * Logit ordenado vai ficar como próximos passos, pós apresentação, mas que já foi mapeado
+.  
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Malu\Downloads\regressao.log
+  log type:  text
+ closed on:  11 Dec 2021, 17:29:25
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
